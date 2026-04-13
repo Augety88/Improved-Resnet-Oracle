@@ -117,7 +117,6 @@ python infer_oracle_gui.py
 
 注：具体实验结果请参考训练生成的 `ablation_results.csv` 文件。
 
-## 许可证
 
-本项目采用MIT许可证，详见 [LICENSE](LICENSE) 文件。
+
 
