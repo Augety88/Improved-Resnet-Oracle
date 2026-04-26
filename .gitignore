@@ -9,7 +9,6 @@ __pycache__/
 
 # Data
 /data/
-/saved_models/
 
 # Results
 *.csv
