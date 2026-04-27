@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch
+*.pt
+
+# Data
+/data/
+
+# Results
+*.csv
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+venv/
+env/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

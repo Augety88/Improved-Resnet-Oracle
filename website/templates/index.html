@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甲骨文识别系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 甲骨文识别系统</h1>
+            <p class="subtitle">基于改进ResNet18+CBAM的深度学习甲骨文识别</p>
+        </header>
+
+        <main>
+            <div class="main-content">
+                <section class="upload-section">
+                    <h2>📤 上传甲骨文图像</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <div class="upload-icon">🖼️</div>
+                            <p>点击或拖拽图像到此处</p>
+                            <p class="upload-hint">支持 PNG, JPG, BMP 格式</p>
+                        </div>
+                        <img id="previewImage" class="preview-image" style="display: none;">
+                        <canvas id="previewCanvas" style="display: none;"></canvas>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="selectBtn">选择图像</button>
+                        <button class="btn btn-success" id="recognizeBtn" disabled>开始识别</button>
+                        <button class="btn btn-secondary" id="clearBtn">清除</button>
+                    </div>
+                    <div class="demo-section">
+                        <h3>演示样本</h3>
+                        <div class="demo-images" id="demoImages">
+                            <button class="demo-btn" data-char="bei">北</button>
+                            <button class="demo-btn" data-char="ling">令</button>
+                            <button class="demo-btn" data-char="niu">牛</button>
+                        </div>
+                    </div>
+                    
+                    <div class="model-section">
+                        <h3>🔧 模型管理</h3>
+                        <div class="model-upload">
+                            <input type="file" id="modelInput" accept=".pth" style="display: none;">
+                            <button class="btn btn-secondary" id="uploadModelBtn">上传模型权重</button>
+                            <span id="modelStatus" class="model-status">当前状态：等待模型</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="result-section">
+                    <h2>📊 识别结果</h2>
+                    <div id="resultArea" class="result-area">
+                        <p class="result-placeholder">请上传图像或选择演示样本开始识别</p>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="history-section">
+                <div class="history-header">
+                    <h2>📜 历史记录</h2>
+                    <button class="btn btn-small btn-danger" id="clearHistoryBtn">清空</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <p class="history-placeholder">暂无历史记录</p>
+                </div>
+            </aside>
+        </main>
+
+        <footer>
+            <p>Powered by PyTorch + Flask + 改进ResNet18+CBAM</p>
+        </footer>
+    </div>
+
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loader"></div>
+            <p>正在识别中...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

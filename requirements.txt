@@ -1,0 +1,16 @@
+# PyTorch 相关
+torch>=1.8.0
+torchvision>=0.9.0
+
+# 图像处理
+Pillow>=8.0.0
+
+# 数据处理和评估
+numpy>=1.19.0
+scikit-learn>=0.24.0
+
+# 进度条
+tqdm>=4.50.0
+
+# GUI界面
+# tkinter 是Python标准库，不需要单独安装
