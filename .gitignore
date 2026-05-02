@@ -9,6 +9,12 @@ __pycache__/
 # Data
 /data/
 
+# Website runtime files
+/website/__pycache__/
+/website/oracle_history.db
+/website/static/uploads/
+/website/static/models/
+
 # Results
 *.csv
 

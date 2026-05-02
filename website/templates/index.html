@@ -3,87 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>甲骨文识别系统</title>
+    <title>甲骨文识别与字形库</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🔥 甲骨文识别系统</h1>
-            <p class="subtitle">基于改进ResNet18+CBAM的深度学习甲骨文识别</p>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="seal">卜</div>
+            <div>
+                <p class="eyebrow">Oracle Bone Script Recognition</p>
+                <h1>甲骨文识别与字形库</h1>
+                <p class="subtitle">上传拓片、手写摹本，或在画板中直接书写。系统会给出识别结果、字形解释和同字异形样本。</p>
+            </div>
         </header>
+
+        <nav class="quick-nav" aria-label="页面功能跳转">
+            <a href="#recognitionPanel">识别入口</a>
+            <a href="#resultSection">识别结果</a>
+            <a href="#knowledgeSection">字形小知识</a>
+            <a href="#variantsSection">其他形体</a>
+            <a href="#databaseSection">数据库</a>
+            <a href="#historySection">历史记录</a>
+        </nav>
 
         <main>
             <div class="main-content">
-                <section class="upload-section">
-                    <h2>📤 上传甲骨文图像</h2>
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-placeholder" id="uploadPlaceholder">
-                            <div class="upload-icon">🖼️</div>
-                            <p>点击或拖拽图像到此处</p>
-                            <p class="upload-hint">支持 PNG, JPG, BMP 格式</p>
+                <section class="panel recognition-panel" id="recognitionPanel">
+                    <div class="section-title">
+                        <p class="eyebrow">Recognize</p>
+                        <h2>选择识别方式</h2>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="upload">上传图片</button>
+                        <button class="tab-btn" data-tab="draw">手写画板</button>
+                    </div>
+
+                    <div class="upload-section" id="uploadSection">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <div class="upload-icon">甲</div>
+                                <p>点击或拖拽图片到这里</p>
+                                <p class="muted">支持 PNG、JPG、BMP 等格式</p>
+                            </div>
+                            <img id="previewImage" class="preview-image" alt="待识别图片" style="display: none;">
                         </div>
-                        <img id="previewImage" class="preview-image" style="display: none;">
-                        <canvas id="previewCanvas" style="display: none;"></canvas>
-                    </div>
-                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
-                    <div class="button-group">
-                        <button class="btn btn-primary" id="selectBtn">选择图像</button>
-                        <button class="btn btn-success" id="recognizeBtn" disabled>开始识别</button>
-                        <button class="btn btn-secondary" id="clearBtn">清除</button>
-                    </div>
-                    <div class="demo-section">
-                        <h3>演示样本</h3>
-                        <div class="demo-images" id="demoImages">
-                            <button class="demo-btn" data-char="bei">北</button>
-                            <button class="demo-btn" data-char="ling">令</button>
-                            <button class="demo-btn" data-char="niu">牛</button>
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                        <div class="button-group">
+                            <button class="btn btn-primary" id="selectBtn">选择图片</button>
+                            <button class="btn btn-success" id="recognizeBtn" disabled>开始识别</button>
+                            <button class="btn btn-secondary" id="clearBtn">清除</button>
+                        </div>
+                        <div class="demo-section">
+                            <span>演示样本：</span>
+                            <button class="chip demo-btn" data-char="bei">北</button>
+                            <button class="chip demo-btn" data-char="ling">令</button>
+                            <button class="chip demo-btn" data-char="niu">牛</button>
                         </div>
                     </div>
-                    
-                    <div class="model-section">
-                        <h3>🔧 模型管理</h3>
-                        <div class="model-upload">
-                            <input type="file" id="modelInput" accept=".pth" style="display: none;">
-                            <button class="btn btn-secondary" id="uploadModelBtn">上传模型权重</button>
-                            <span id="modelStatus" class="model-status">当前状态：等待模型</span>
+
+                    <div class="draw-section" id="drawSection" style="display: none;">
+                        <div class="canvas-wrap">
+                            <canvas id="drawCanvas" class="draw-canvas"></canvas>
+                        </div>
+                        <div class="canvas-controls">
+                            <label class="range-label">
+                                笔触粗细
+                                <input type="range" id="brushSize" min="2" max="28" value="10">
+                                <span id="brushSizeValue">10</span>
+                            </label>
+                            <div class="button-group">
+                                <button class="btn btn-secondary" id="clearCanvasBtn">清空画布</button>
+                                <button class="btn btn-secondary" id="undoBtn">撤销一笔</button>
+                                <button class="btn btn-success" id="recognizeCanvasBtn">识别笔迹</button>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <section class="result-section">
-                    <h2>📊 识别结果</h2>
+                <section class="panel result-section" id="resultSection">
+                    <div class="section-title">
+                        <p class="eyebrow">Result</p>
+                        <h2>识别结果</h2>
+                    </div>
                     <div id="resultArea" class="result-area">
-                        <p class="result-placeholder">请上传图像或选择演示样本开始识别</p>
+                        <div class="empty-state">上传图片或在画板上写一个甲骨文字形，识别结果会显示在这里。</div>
+                    </div>
+                </section>
+
+                <section class="panel knowledge-section" id="knowledgeSection" style="display: none;">
+                    <div class="section-title">
+                        <p class="eyebrow">Knowledge</p>
+                        <h2>字形小知识</h2>
+                    </div>
+                    <div id="knowledgeContent" class="knowledge-content"></div>
+                </section>
+
+                <section class="panel variants-section" id="variantsSection" style="display: none;">
+                    <div class="section-title inline-title">
+                        <div>
+                            <p class="eyebrow">Variants</p>
+                            <h2>该字的其他形体</h2>
+                        </div>
+                        <button class="btn btn-small btn-secondary" id="loadMoreVariantsBtn">查看更多</button>
+                    </div>
+                    <div id="variantsGrid" class="variants-grid"></div>
+                </section>
+
+                <section class="panel database-section" id="databaseSection">
+                    <div class="section-title">
+                        <p class="eyebrow">Database</p>
+                        <h2>甲骨文字形数据库</h2>
+                    </div>
+                    <div class="database-stats" id="databaseStats">正在读取数据集...</div>
+                    <div class="category-strip" id="categoryStrip"></div>
+                    <div class="database-search">
+                        <input type="text" id="searchInput" placeholder="输入汉字、类别或编码，例如：牛、动物、601B9" class="search-input">
+                        <button class="btn btn-primary" id="searchBtn">查询</button>
+                    </div>
+                    <div id="databaseResults" class="database-results">
+                        <div class="empty-state">可按字名、类别或数据集编码查询，并查看对应说明与全部字形样本。</div>
+                    </div>
+                    <div class="source-links">
+                        <span>外部资料参考：</span>
+                        <a href="https://oraclebone.org/" target="_blank" rel="noreferrer">oraclebone.org 字形库</a>
+                        <a href="https://www.jgwlbq.org.cn/home" target="_blank" rel="noreferrer">殷契文渊</a>
+                        <a href="https://asia-archive.si.edu/learn/chinas-calligraphic-arts/oracle-bone-script/" target="_blank" rel="noreferrer">Smithsonian 甲骨文简介</a>
+                    </div>
+                </section>
+
+                <section class="panel model-section">
+                    <div class="section-title">
+                        <p class="eyebrow">Model</p>
+                        <h2>模型管理</h2>
+                    </div>
+                    <div class="model-upload">
+                        <input type="file" id="modelInput" accept=".pth" hidden>
+                        <button class="btn btn-secondary" id="uploadModelBtn">上传模型权重</button>
+                        <span id="modelStatus" class="model-status">当前状态：使用默认模型</span>
                     </div>
                 </section>
             </div>
 
-            <aside class="history-section">
+            <aside class="panel history-section" id="historySection">
                 <div class="history-header">
-                    <h2>📜 历史记录</h2>
+                    <div>
+                        <p class="eyebrow">History</p>
+                        <h2>历史记录</h2>
+                    </div>
                     <button class="btn btn-small btn-danger" id="clearHistoryBtn">清空</button>
                 </div>
                 <div id="historyList" class="history-list">
-                    <p class="history-placeholder">暂无历史记录</p>
+                    <div class="empty-state">暂无历史记录</div>
                 </div>
             </aside>
         </main>
 
         <footer>
-            <p>Powered by PyTorch + Flask + 改进ResNet18+CBAM</p>
+            <span></span>
+            <p>基于改进 ResNet18 的甲骨文识别网站，数据来源于“甲骨文手写体+甲骨文拓片”文件夹。</p>
+            <span></span>
         </footer>
+    </div>
+
+    <div id="historyDetailModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>识别详情</h3>
+                <button class="modal-close" type="button" aria-label="关闭">×</button>
+            </div>
+            <div id="historyDetailContent" class="history-detail-content"></div>
+        </div>
     </div>
 
     <div id="loadingModal" class="modal">
         <div class="modal-content">
             <div class="loader"></div>
-            <p>正在识别中...</p>
+            <p>正在识别，请稍候...</p>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <section class="ai-assistant" id="aiAssistant" aria-label="AI 助手">
+        <button class="ai-toggle" id="aiToggle" type="button" aria-label="打开 AI 助手" title="拖动悬浮球，点击打开 AI 助手">AI</button>
+        <div class="ai-panel" id="aiPanel" aria-live="polite">
+            <div class="ai-header">
+                <div>
+                    <p class="eyebrow">Assistant</p>
+                    <h2>智能大模型助手</h2>
+                </div>
+                <div class="ai-header-actions">
+                    <button class="ai-reset" id="aiResetBtn" type="button" aria-label="清空对话">↺</button>
+                    <button class="ai-close" id="aiCloseBtn" type="button" aria-label="关闭 AI 助手">×</button>
+                </div>
+            </div>
+            <div class="ai-status" id="aiStatus">正在读取模型配置...</div>
+            <div class="ai-messages" id="aiMessages"></div>
+            <form class="ai-form" id="aiForm">
+                <textarea id="aiInput" rows="2" placeholder="问我识别结果、字形含义或项目使用问题"></textarea>
+                <button class="btn btn-primary" id="aiSendBtn" type="submit">发送</button>
+            </form>
+        </div>
+    </section>
 
+    <div id="toast" class="toast"></div>
     <script src="/static/js/app.js"></script>
 </body>
 </html>

@@ -12,5 +12,9 @@ scikit-learn>=0.24.0
 # 进度条
 tqdm>=4.50.0
 
+# Web 服务
+Flask>=2.2.0
+Werkzeug>=2.2.0
+
 # GUI界面
 # tkinter 是Python标准库，不需要单独安装

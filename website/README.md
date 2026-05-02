@@ -1,81 +1,113 @@
-# 甲骨文识别系统 - 网站部署
+# Web 网站部署说明
 
-## 项目概述
+`website/` 是甲骨文识别与字形库的 Flask Web 应用。它复用根目录的模型、演示样本和数据集，提供图片上传识别、手写画板、字形数据库、历史记录和 AI 助手。
 
-这是一个基于 Flask 的甲骨文识别网站，使用改进的 ResNet18+CBAM 深度学习模型进行甲骨文图像识别。
+## 功能
 
-## 功能特性
+- 图片上传识别：支持 PNG、JPG、JPEG、BMP、WEBP。
+- 手写画板：可直接在页面书写字形并识别。
+- 识别结果：显示 Top-1、置信度、候选结果和同字形体。
+- 字形知识库：自动扫描 `甲骨文手写体+甲骨文拓片` 并补充内置释义。
+- 数据库查询：支持按汉字、类别、编码检索。
+- 历史记录：本地 SQLite 保存识别记录。
+- AI 助手：可拖动悬浮球，自动解释识别结果，也可继续对话。
 
-- 📤 图像上传：支持拖拽或点击上传甲骨文图像
-- 🔮 智能识别：基于深度学习模型的自动识别
-- 📊 结果展示：显示识别结果和置信度
-- 📜 历史记录：自动保存和管理识别历史
-- 🖼️ 演示样本：提供预设的演示样本快速测试
+## 目录
 
-## 目录结构
-
-```
+```text
 website/
-├── app.py              # Flask 主应用
-├── requirements.txt    # Python 依赖
-├── static/
-│   ├── css/
-│   │   └── style.css   # 样式文件
-│   ├── js/
-│   │   └── app.js       # 前端脚本
-│   └── uploads/         # 上传文件目录
-└── templates/
-    └── index.html       # 主页面
+├── app.py
+├── oracle_knowledge.json
+├── README.md
+├── templates/
+│   └── index.html
+└── static/
+    ├── css/style.css
+    ├── js/app.js
+    ├── uploads/       # 运行时上传目录，不提交
+    └── models/        # 运行时上传模型目录，不提交
 ```
 
-## 安装与运行
+## 运行
 
-### 1. 安装依赖
+在项目根目录执行：
 
 ```bash
-cd website
 pip install -r requirements.txt
+python website/app.py
 ```
 
-### 2. 运行服务器
+访问：
+
+```text
+http://127.0.0.1:5000
+```
+
+## 模型加载
+
+默认模型路径：
+
+```text
+saved_models/OracleResNet18_FullImproved.pth
+saved_models/classnames.json
+```
+
+也可以在网页的“模型管理”区域上传 `.pth` 权重进行当前会话测试。
+
+## AI 助手配置
+
+在项目根目录创建 `.env`，不要提交真实密钥。
 
 ```bash
-python app.py
+ORACLE_AI_BASE_URL=https://api.example.com/v1
+ORACLE_AI_MODEL=your-model-name
+ORACLE_AI_API_KEY=your-api-key
+ORACLE_AI_PROVIDER=OpenAI-compatible
+ORACLE_AI_WIRE_API=chat_completions
+ORACLE_AI_TIMEOUT=35
+ORACLE_AI_MAX_TOKENS=800
+ORACLE_AI_TEMPERATURE=0.4
 ```
 
-### 3. 访问网站
+LongAPI / Responses 示例：
 
-打开浏览器访问: http://localhost:5000
+```bash
+ORACLE_AI_BASE_URL=https://haoshuai.cc.cd
+ORACLE_AI_MODEL=gpt-5.4
+ORACLE_AI_API_KEY=你的新密钥
+ORACLE_AI_PROVIDER=LongAPI
+ORACLE_AI_WIRE_API=responses
+```
 
-## 模型文件
+说明：
 
-系统需要模型权重文件才能进行识别。有两种方式提供模型：
+- `ORACLE_AI_WIRE_API=chat_completions` 时会请求 `<base_url>/chat/completions`。
+- `ORACLE_AI_WIRE_API=responses` 时会请求 `<base_url>/responses`。
+- 未配置在线模型时，AI 助手会使用本地知识兜底回答。
+- 当前识别结果、置信度、候选结果和字形知识会作为上下文传给助手。
 
-### 方式一：使用已训练的模型
-将训练好的 `.pth` 文件放到 `saved_models/` 目录，命名为 `best_model.pth`
+## API
 
-### 方式二：使用 classnames.json
-如果只有 classnames.json 文件，系统将使用模拟模式进行演示
-
-## API 接口
-
-| 接口 | 方法 | 描述 |
-|------|------|------|
-| `/` | GET | 主页面 |
-| `/api/classify` | POST | 上传图像进行识别 |
+| 接口 | 方法 | 说明 |
+| --- | --- | --- |
+| `/api/classify` | POST | 上传图片或画板数据识别 |
 | `/api/history` | GET | 获取历史记录 |
-| `/api/history/<id>` | DELETE | 删除单条记录 |
-| `/api/history/clear` | POST | 清空历史记录 |
+| `/api/history/<id>` | DELETE | 删除单条历史 |
+| `/api/history/clear` | POST | 清空历史 |
+| `/api/demo/<char_name>` | GET | 获取演示样本 |
+| `/api/knowledge/<char_name>` | GET | 获取字形知识 |
+| `/api/variants/<char_name>` | GET | 获取同字异形 |
+| `/api/categories` | GET | 获取类别统计 |
+| `/api/characters` | GET | 搜索字形数据库 |
+| `/api/assistant/status` | GET | 获取 AI 配置状态 |
+| `/api/assistant/chat` | POST | AI 助手问答 |
 
-## 硬件要求
+## 运行时文件
 
-- CPU 或 NVIDIA GPU (CUDA)
-- 内存: 4GB+
-- 磁盘空间: 500MB+
+以下文件由程序运行生成，已在 `.gitignore` 中忽略：
 
-## 技术栈
-
-- **后端**: Flask, PyTorch, TorchVision
-- **前端**: HTML5, CSS3, JavaScript
-- **数据库**: SQLite (内置)
-- **模型**: 改进 ResNet18 + CBAM 注意力机制
+```text
+website/oracle_history.db
+website/static/uploads/
+website/static/models/
+```
