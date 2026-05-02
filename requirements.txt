@@ -16,5 +16,3 @@ tqdm>=4.50.0
 Flask>=2.2.0
 Werkzeug>=2.2.0
 
-# GUI界面
-# tkinter 是Python标准库，不需要单独安装
